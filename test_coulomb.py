@@ -31,12 +31,12 @@ class TestCoreFunctions(unittest.TestCase):
                         [0,  45, -90]] # 6
 
         nor_shear_tans = [[-0.5, 0.5,  0.0],   # 0
-                          [0.0,  0.0,  0.0],   # 1
+                          [0.0,  1.0,  0.0],   # 1
                           [-0.5, 0.0,  0.5],   # 2
                           [0.5,  0.0, -0.5],   # 3
                           [-0.5, 0.5,  0],     # 4
                           [-0.5, 0.5,  0.0],   # 5 
-                          [0.5,  0.5,  0.0]]   # 6 <- fails
+                          [0.5,  -0.5,  0.0]]   # 6 <- fails
 
         ii = 0
         for stress, sdr, nst in zip(stresses, str_dip_raks, nor_shear_tans):
@@ -47,4 +47,3 @@ class TestCoreFunctions(unittest.TestCase):
             self.assertAlmostEqual(s, nst[1], delta=1e-15)
             self.assertAlmostEqual(t, nst[2], delta=1e-15)
             ii += 1
-

@@ -4,8 +4,8 @@ import numpy as num
 import math
 
 pi = num.pi
-r2d = 180/pi
-d2r = pi/180
+r2d = 180./pi
+d2r = pi/180.
 
 def ned_to_normal_shear_tangential(tensor, strike, dip, rake):
     """
@@ -54,33 +54,39 @@ def ned_to_normal_shear_tangential(tensor, strike, dip, rake):
     print(tensor)
 
     # north-east-down to normal strike rotation matrix
-    rotmat = euler_to_matrix((90+dip)*d2r, -strike*d2r, 90*d2r).A
-    #rotmat = euler_to_matrix((dip + 180.) * d2r, strike * d2r, rake * d2r).A
+    # rotmat = euler_to_matrix((90+dip)*d2r, -strike*d2r, 90*d2r).A
     #rotmat = euler_to_matrix(dip*d2r, strike*d2r, -rake*d2r).A
     #rotmat = euler_to_matrix((dip+180)*d2r, strike*d2r, 0).A
 
-    tensor_nsd = rotmat @ tensor @ rotmat.T  # normal, strike, dip
-    print(tensor_nsd)
+    # tensor_nsd = rotmat @ tensor @ rotmat.T  # normal, strike, dip
+    # print(tensor_nsd)
 
-    normal = -tensor_nsd[0,0]
+    # normal = -tensor_nsd[0,0]
     #slip = -tensor_nsd[0,1]
     #tang = -tensor_nsd[0,2]
-    
+
     #  Shear stress on the fault plane, in strike and dip (positive up)
     #  coordinates
-    plane_sd = num.matrix([[tensor_nsd[0, 1], 0],
-                           [0, tensor_nsd[0, 2]]]).A
-    print(plane_sd)
-    
-    cr = math.cos(rake*d2r)
-    sr = math.sin(rake*d2r)
-    rotmat_plane = num.matrix([[cr, -sr],
-                               [sr, cr]]).A
+    # plane_sd = num.matrix([[tensor_nsd[0, 1], 0],
+                           # [0, tensor_nsd[0, 2]]]).A
+    # print(plane_sd)
 
-    plane_st = rotmat_plane.T @ plane_sd @ rotmat_plane  # slip, tangential
-    print(plane_st)
-    slip = plane_st[0,0]
-    tang = plane_st[1,1]
-    print(normal, slip, tang)
+    # cr = math.cos(rake*d2r)
+    # sr = math.sin(rake*d2r)
+    # rotmat_plane = num.matrix([[cr, -sr],
+                               # [sr, cr]]).A
+
+    # plane_st = rotmat_plane.T @ plane_sd @ rotmat_plane  # slip, tangential
+    # print(plane_st)
+    # slip = plane_st[0,0]
+    # tang = plane_st[1,1]
+    # print(normal, slip, tang)
+
+    rotmat = euler_to_matrix((dip + 180.) * d2r, strike * d2r, rake * d2r).A
+    tensor_stn = num.linalg.multi_dot(
+        [rotmat, tensor, rotmat.T])  # slip, tangential, normal
+    print(tensor_stn)
+
+    slip, tang, normal = tensor_stn[0, 0], tensor_stn[1, 1], -tensor_stn[2, 2]
 
     return normal, slip, tang
